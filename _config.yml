@@ -38,3 +38,5 @@ markdown: kramdown
 plugins:
   - jekyll-feed
   - jekyll-redirect-from
+
+theme: jekyll-theme-tactile

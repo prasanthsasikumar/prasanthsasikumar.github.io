@@ -109,35 +109,20 @@
   long: International Conference and Exhibition on Computer Graphics and Interactive Techniques
   years:
   -
-    year: 2019
-    date: "2019-07-28"
-    url : https://s2019.siggraph.org/
-    info: LA, USA
+    year: 2020
+    date: "2019-07-19"
+    url : https://s2020.siggraph.org/
+    info: Washington DC, USA
     submissions:
     -
       type: Technical Paper
-      date: "2019-01-13"
+      date: "2020-01-22"
     -
       type: E-Tech (Demo)
-      date: "2019-02-12"
+      date: "2020-02-11"
     -
       type: Poster
-      date: "2019-04-09"
-  -
-    year: 2018
-    date: "2018-08-12"
-    url : https://s2018.siggraph.org/
-    info: --% - Vancouver, Canada
-    submissions:
-    -
-      type: Technical Paper
-      date: "2018-01-23"
-    -
-      type: E-Tech (Demo)
-      date: "2018-02-13"
-    -
-      type: Poster
-      date: "2018-05-10"
+      date: "2020-04-28"
 
 - name: SIGGRAPH Asia
   long: ACM SIGGRAPH Conference and Exhibition on Computer Graphics and Interactive Techniques in Asia

@@ -89,10 +89,6 @@ a:hover .arr{transform:translate(2px,-2px)}
 .hero-lede{margin-top:24px;max-width:540px;font-size:18px;line-height:1.55;color:var(--fg-2)}
 .hero-lede strong{font-weight:500;color:#fff}
 .hero-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:30px}
-.terminal{display:flex;align-items:center;gap:10px;margin-top:30px;font-family:var(--mono);font-size:13px;color:var(--fg-2)}
-.terminal .prompt{color:var(--pulse)}
-.terminal .typed{white-space:pre}
-.terminal .domain{color:#fff}
 .caret{display:inline-block;width:8px;height:15px;background:var(--pulse);animation:caret 1.05s steps(1) infinite}
 @keyframes caret{0%,49%{opacity:1}50%,100%{opacity:0}}
 .hero-foot{position:relative}
@@ -377,10 +373,7 @@ html[data-motion=off] [data-reveal]{opacity:1;transform:none}
   :root{--nav-h:52px}
   .announce{font-size:12px;padding:7px 12px}
   .announce-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .terminal{align-items:flex-start;font-size:12px}
-  .terminal .typed{white-space:normal;overflow-wrap:anywhere}
-  .terminal .caret{margin-top:1px}
-  .hero h1{font-size:clamp(40px,11vw,60px)}
+        .hero h1{font-size:clamp(40px,11vw,60px)}
   .hero-lede{font-size:16.5px}
   .legend-keys span:nth-child(n+2){display:none}
   .org{min-height:100px}

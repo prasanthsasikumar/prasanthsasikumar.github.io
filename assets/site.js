@@ -331,7 +331,7 @@
       }
       // The gaze reveals what is under it.
       if (gaze) for (const trip of trips) {
-        if (Math.hypot(trip.xy[0] - gaze.x, trip.xy[1] - gaze.y) > 24) continue;
+        if (Math.hypot(trip.xy[0] - gaze.x, trip.xy[1] - gaze.y) > 28) continue;
         ctx.fillStyle = '#fff'; sq(trip.xy[0], trip.xy[1], 5);
         label(trip.xy[0], trip.xy[1], trip.name, trip.note, trip.side || 1, trip.dy || -14, 1);
         break;
@@ -387,12 +387,9 @@
 
     const local = e => { const b = fx.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
     fx.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { pointer = local(e); if (!moving) draw(performance.now()); } });
+    // On touch, a tap points the reticle there so trip names show without hover.
+    fx.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { pointer = local(e); gaze = null; draw(performance.now()); start(); } });
     fx.addEventListener('pointerleave', () => { pointer = null; gaze = null; if (!moving) draw(performance.now()); });
-    fx.addEventListener('click', e => {
-      const p = local(e), now = performance.now(), d = nearestDot(p.x, p.y, 18);
-      addBlip(d ? d.x : p.x, d ? d.y : p.y, now, true);
-      if (!moving) draw(now); else start();
-    });
     motionListeners.push(on => { if (on) { started = performance.now() - 6000; start(); } else { stop(); draw(performance.now()); } });
     document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else start(); });
     observe([hero], entry => { visible = entry.isIntersecting; if (visible) start(); else stop(); });

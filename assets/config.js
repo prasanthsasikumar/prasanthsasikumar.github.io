@@ -5,7 +5,7 @@
            right edge (go past 180 to wrap the Americas onto the right), lat0 the top,
            lat1 the bottom. The map keeps its aspect ratio inside the right half of the hero.
    places  Where you have lived or worked. Keys are short ids used by routes and trips.
-           name, note: the label ("SINGAPORE · NOW"). side: 1 puts the label right of
+           name, note: the label ("SINGAPORE · NOW"); note is optional. side: 1 puts the label right of
            the dot, -1 left. dy: label offset up (negative) or down (positive), in px.
            home: true gives the place a heartbeat ring (use it once, for where you are now).
    routes  Moves between places, drawn in order: [fromId, toId] or [fromId, toId, true]
@@ -18,35 +18,40 @@ window.SITE = {
     area: { lon0: -14, lon1: 292, lat0: 62, lat1: -48 },
     areaMobile: { lon0: 62, lon1: 192, lat0: 46, lat1: -48 },
     places: {
-      ker: { name: 'Kerala', note: '2010', lat: 8.52, lon: 76.94, side: -1, dy: -14 },
-      chc: { name: 'Christchurch', note: '2017', lat: -43.53, lon: 172.64, side: -1, dy: 14 },
-      akl: { name: 'Auckland', note: '2019', lat: -36.85, lon: 174.76, side: -1, dy: -14 },
+      ker: { name: 'Kerala', note: 'home', lat: 8.52, lon: 76.94, side: -1, dy: -14 },
+      chc: { name: 'Christchurch', note: 'Masters', lat: -43.53, lon: 172.64, side: -1, dy: 14 },
+      wlg: { name: 'Wellington', note: 'Work', lat: -41.29, lon: 174.78, side: -1, dy: 1 },
+      akl: { name: 'Auckland', note: 'PhD', lat: -36.85, lon: 174.76, side: -1, dy: -14 },
       sg: { name: 'Singapore', note: 'now', lat: 1.35, lon: 103.82, side: 1, dy: 16, home: true },
       cmb: { name: 'Colombo', note: 'team', lat: 6.93, lon: 79.85, side: -1, dy: 16 },
     },
-    routes: [['ker', 'chc'], ['chc', 'akl'], ['akl', 'sg'], ['sg', 'cmb', true]],
+    routes: [['ker', 'chc'], ['chc', 'wlg'], ['wlg', 'akl'], ['akl', 'sg'], ['sg', 'cmb', true]],
     trips: [
-      { name: 'Fiji', note: 'visited', lat: -17.76, lon: 177.44, from: 'akl' },
-      { name: 'Sydney', note: 'ISMAR 2023', lat: -33.87, lon: 151.21, from: 'sg' },
+      { name: 'Brisbane', note: '2019', lat: -27.47, lon: 153.03, from: 'akl' },
+      { name: 'Fiji', note: '2023', lat: -17.76, lon: 177.44, from: 'akl' },
+      { name: 'Sydney', note: '2023', lat: -33.87, lon: 151.21, from: 'sg' },
       { name: 'Orlando', note: 'IEEE VR 2024', lat: 28.54, lon: -81.38, from: 'sg', side: -1 },
       { name: 'Istanbul', note: 'XR Hack 2024', lat: 41.01, lon: 28.98, from: 'sg' },
+      { name: 'Vietnam', note: '2024', lat: 21.03, lon: 105.85, from: 'sg' },
       { name: 'Delhi', note: '2025', lat: 28.61, lon: 77.21, from: 'sg' },
       { name: 'Guwahati', note: '2025', lat: 26.14, lon: 91.74, from: 'sg' },
+      { name: 'Nepal', note: '2025', lat: 27.72, lon: 85.32, from: 'sg', dy: -16 },
+      { name: 'Bhutan', note: '2025', lat: 27.47, lon: 89.64, from: 'sg', dy: -16 },
       { name: 'Tokyo', note: '2025', lat: 35.68, lon: 139.69, from: 'sg' },
       { name: 'New York', note: '2025', lat: 40.71, lon: -74.01, from: 'sg', side: -1 },
       { name: 'Seattle', note: 'Meta summits', lat: 47.61, lon: -122.33, from: 'sg', side: -1 },
-      { name: 'Phuket', note: '2025', lat: 7.88, lon: 98.39, from: 'sg' },
+      { name: 'Thailand', note: '2025', lat: 7.88, lon: 98.39, from: 'sg' },
       { name: 'Seoul', note: '2025', lat: 37.57, lon: 126.98, from: 'sg' },
-      { name: 'Dagstuhl', note: 'Seminar 2025', lat: 49.53, lon: 6.89, from: 'sg' },
+      { name: 'Luxembourg', note: '2025', lat: 49.61, lon: 6.13, from: 'sg', dy: -16 },
+      { name: 'Dagstuhl', note: 'Seminar 2025', lat: 49.53, lon: 6.89, from: 'sg', dy: 14 },
       { name: 'Abu Dhabi', note: '2026', lat: 24.45, lon: 54.38, from: 'sg' },
       { name: 'Barcelona', note: 'CHI 2026', lat: 41.39, lon: 2.17, from: 'sg', dy: 14 },
+      { name: 'France', note: '2026', lat: 48.86, lon: 2.35, from: 'sg', dy: -16 },
       { name: 'Okinawa', note: 'AHs 2026', lat: 26.21, lon: 127.68, from: 'sg' },
       { name: 'Osaka', note: '2026', lat: 34.69, lon: 135.5, from: 'sg', dy: 14 },
       { name: 'Philadelphia', note: '2026', lat: 39.95, lon: -75.17, from: 'sg', side: -1, dy: 14 },
       { name: 'Boston', note: '2026', lat: 42.36, lon: -71.06, from: 'sg', side: -1 },
-      { name: 'France', note: 'visited', lat: 48.86, lon: 2.35, from: 'sg' },
-      { name: 'Vietnam', note: 'visited', lat: 21.03, lon: 105.85, from: 'sg' },
-      { name: 'China', note: 'visited', lat: 39.9, lon: 116.4, from: 'sg' },
+      { name: 'China', lat: 39.9, lon: 116.4, from: 'sg' },
     ],
   },
 };

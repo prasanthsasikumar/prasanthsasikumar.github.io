@@ -257,7 +257,7 @@
     function label(x, y, name, note, side, dy, alpha) {
       ctx.font = '500 10.5px "Geist Mono", ui-monospace, monospace';
       ctx.textBaseline = 'middle';
-      const text = name.toUpperCase(), extra = ` · ${note.toUpperCase()}`;
+      const text = name.toUpperCase(), extra = note ? ` · ${String(note).toUpperCase()}` : '';
       const lw = ctx.measureText(text).width, bw = lw + ctx.measureText(extra).width;
       const spots = [[side, dy], [-side, dy], [side, -dy], [-side, -dy]].map(([sd, d]) => [sd > 0 ? x + 10 : x - 10 - bw, y + d]);
       const [lx, ly] = spots.find(([sx, sy]) => sx > 4 && sx + bw < width - 4 && !(avoid && sx - 4 < avoid.x1 && sx + bw + 4 > avoid.x0 && sy - 8 < avoid.y1 && sy + 8 > avoid.y0)) ?? spots[0];

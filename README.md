@@ -7,6 +7,21 @@ One page, plain HTML/CSS/JS, no build step, free hosting on GitHub Pages. Every 
 gets an animated diagram, there is a "Motion on/off" switch, and the hero is a dot-matrix
 map of where you have lived and travelled. It works on phones.
 
+![The hero: a dot-matrix map of the route so far, with trips flying out from home](docs/hero.gif)
+
+Every chapter of the story gets its own animated diagram. They pause when off screen
+and stop entirely with "Motion off".
+
+![Two story cards with animated figures](docs/story.gif)
+
+![Product cards for Sidekick, Hermes Glasses and TalkShot](docs/building.gif)
+
+<p>
+  <img src="docs/phone.png" alt="The site on a phone" width="260">
+  &nbsp;
+  <img src="docs/footer.png" alt="The footer with dot-matrix lettering" width="560">
+</p>
+
 ## Make your own (about 15 minutes)
 
 You need a GitHub account and an AI coding agent (Claude Code, Codex, Cursor, Copilot...).

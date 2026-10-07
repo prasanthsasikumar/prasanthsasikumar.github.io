@@ -13,6 +13,7 @@ hosted free on GitHub Pages. Your usual job here is to **make it about a new per
 | `assets/site.js` | Motion toggle, map drawing, story rewind, mobile menu | Rarely |
 | `assets/world.png` | Land mask for the map (720x288, white = land) | No. Rebuild with `tools/make_world_mask.py` |
 | `assets/favicon.svg` | Tab icon, also the logo in the nav | Optional |
+| `docs/` | Screenshots and GIFs used only by `README.md` (not loaded by the site) | Replace with your own, or delete |
 
 ## Personalising: the order that works
 

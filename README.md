@@ -1,29 +1,51 @@
 # prasanthsasikumar.github.io
 
-Personal site: XR and wearable AI research, and the products built on it at FlowsXR.
+My personal site: XR and wearable AI research, and the products built on it.
+Live at **https://prasanthsasikumar.github.io/**
 
-Plain static HTML, CSS and JS. No build step.
+One page, plain HTML/CSS/JS, no build step, free hosting on GitHub Pages. Every project
+gets an animated diagram, there is a "Motion on/off" switch, and the hero is a dot-matrix
+map of where you have lived and travelled. It works on phones.
 
-- `index.html` holds all content, including the animated SVG figure for each project.
-- `assets/style.css` has the tokens, layout and figure animation keyframes.
-- `assets/site.js` handles the motion on/off toggle (remembered per browser, follows
-  reduced-motion by default), pausing figures while off screen, the story rewind, the
-  mobile menu and the gaze/pulse hero canvas.
+## Make your own (about 15 minutes)
 
-## Run locally
+You need a GitHub account and an AI coding agent (Claude Code, Codex, Cursor, Copilot...).
 
-    python3 -m http.server 8000
+**1. Copy it.** Click **Use this template → Create a new repository**. Name the repository
+`<your-github-username>.github.io` (exactly that, or GitHub Pages will not serve it at the root).
 
-## Deploy
+**2. Let your agent rewrite it.** Clone your new repo, open it in your agent, and paste:
 
-Push to a GitHub repo named `prasanthsasikumar.github.io`, then enable Pages
-(Settings > Pages > Deploy from branch > `main` / root). It serves at
-https://prasanthsasikumar.github.io/.
+```
+Read AGENTS.md, then make this site about me. Replace every fact, project, paper,
+place and link with mine, and draw a new animated figure for each of my projects.
+Do not invent anything; ask me if something is missing. Here is my info:
 
-## Adding a project
+<paste your CV, or a link to it, your Google Scholar / GitHub / LinkedIn links,
+the cities you have lived in with years, and the projects you want shown>
+```
 
-Copy an `<article class="act">` block in the Story or Building section, set `--act`
-to one of the colour tokens, and draw the figure in a `viewBox="0 0 420 250"` SVG
-(`0 0 360 200` for Building). Reuse the figure classes (`accent`, `dash`, `panel`,
-`lane`, `blink`, `ring`, `step-a/b/c`...). Make the resting frame readable on its
-own, because with motion off every animation is removed.
+**3. Publish.** Push to `main`. In a minute or two it is live at
+`https://<your-github-username>.github.io/`.
+
+To preview before pushing: `python3 -m http.server 8000` and open http://localhost:8000.
+
+## Edit it by hand
+
+| To change | Edit |
+|---|---|
+| Words, projects, papers, links | `index.html` |
+| Map: places, routes, trips | `assets/config.js` |
+| Colours | `:root` at the top of `assets/style.css` |
+
+`AGENTS.md` explains the card layout, how to draw the animated figures, and what to check
+before pushing. It is written for agents but reads fine for people.
+
+## Credits
+
+Layout and the idea of animated figures per chapter are inspired by
+[Shamane Siriwardhana's site](https://shamanez.github.io/). Map land data from
+[Natural Earth](https://www.naturalearthdata.com/) (public domain). Fonts: Geist and Geist Mono.
+
+Code is MIT licensed (see `LICENSE`). The words, papers and project descriptions are mine;
+please replace them with yours.

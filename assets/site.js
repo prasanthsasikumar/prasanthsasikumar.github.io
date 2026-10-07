@@ -159,23 +159,19 @@
     const hero = fx.closest('.hero');
     const bctx = base.getContext('2d'), ctx = fx.getContext('2d');
     const LAT_TOP = 84, RES = 0.5;
-    const AREA = { lon0: 62, lon1: 192, lat0: 44, lat1: -50 };
+    // Everything personal lives in assets/config.js (window.SITE.map).
+    const MAP = (window.SITE && window.SITE.map) || {};
+    const AREA = MAP.area || { lon0: -14, lon1: 292, lat0: 62, lat1: -48 };
     const PULSE = '255,122,69';
-    const PLACES = {
-      ker: { name: 'Kerala', note: '2010', lat: 8.52, lon: 76.94, side: -1, dy: -14 },
-      chc: { name: 'Christchurch', note: '2017', lat: -43.53, lon: 172.64, side: -1, dy: 14 },
-      akl: { name: 'Auckland', note: '2019', lat: -36.85, lon: 174.76, side: -1, dy: -14 },
-      sg: { name: 'Singapore', note: 'now', lat: 1.35, lon: 103.82, side: 1, dy: 16, home: true },
-      cmb: { name: 'Colombo', note: 'team', lat: 6.93, lon: 79.85, side: -1, dy: 16 },
-      jp: { name: 'Japan', note: 'Asahi collab', lat: 35.68, lon: 139.69, side: 1, dy: -12 },
-    };
-    const ROUTES = [['ker', 'chc'], ['chc', 'akl'], ['akl', 'sg'], ['sg', 'cmb', true], ['sg', 'jp', true]];
+    const PLACES = MAP.places || {};
+    const ROUTES = MAP.routes || [];
+    const TRIPS = (MAP.trips || []).filter(trip => PLACES[trip.from]);
     const hash = (a, b) => { let h = Math.imul(a, 374761393) + Math.imul(b, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
     let mask = null, mw = 0, mh = 0;
     let width = 0, height = 0, ratio = 1, k = 1, ox = 0, oy = 0, gap = 7, dot = 2;
-    let dots = [], cols = [], routes = [], blips = [], region = null, avoid = null;
+    let dots = [], cols = [], routes = [], blips = [], trips = [], region = null, avoid = null;
     let pointer = null, gaze = null, frame = 0, visible = true, started = performance.now(), lastBlip = 0;
-    const project = (lon, lat) => [ox + (lon - AREA.lon0) * k, oy + (AREA.lat0 - lat) * k];
+    const project = (lon, lat) => [ox + ((lon < AREA.lon0 ? lon + 360 : lon) - AREA.lon0) * k, oy + (AREA.lat0 - lat) * k];
     const home = () => project(PLACES.sg.lon, PLACES.sg.lat);
 
     function layout() {
@@ -195,7 +191,8 @@
       dot = gap < 6 ? 1.6 : 2;
       buildDots(); drawBase();
       routes = ROUTES.map(([a, b, remote]) => ({ remote: !!remote, points: arc(PLACES[a], PLACES[b]) }));
-      blips = [];
+      trips = TRIPS.map(trip => ({ ...trip, xy: project(trip.lon, trip.lat), points: arc(PLACES[trip.from], trip) }));
+      blips = blips.filter(b => b.you);
       draw(performance.now()); start();
     }
 
@@ -255,13 +252,16 @@
       blips.push({ x, y, born: now, life: you ? 16000 : 4200 + Math.random() * 3000, you, phase: Math.random() });
       if (blips.length > 26) blips.splice(0, blips.length - 26);
     }
-    function spawn(now) {
-      if (!dots.length || now - lastBlip < 650) return;
-      lastBlip = now;
-      for (let n = 0; n < 14; n++) {
-        const d = dots[(Math.random() * dots.length) | 0];
-        if (d.x >= region.x0 && d.x <= region.x1 && d.y >= region.y0 && d.y <= region.y1) { addBlip(d.x, d.y, now); return; }
-      }
+    function label(x, y, name, note, side, dy, alpha) {
+      ctx.font = '500 10.5px "Geist Mono", ui-monospace, monospace';
+      ctx.textBaseline = 'middle';
+      const text = name.toUpperCase(), extra = ` · ${note.toUpperCase()}`;
+      const lw = ctx.measureText(text).width, bw = lw + ctx.measureText(extra).width;
+      const spots = [[side, dy], [-side, dy], [side, -dy], [-side, -dy]].map(([sd, d]) => [sd > 0 ? x + 10 : x - 10 - bw, y + d]);
+      const [lx, ly] = spots.find(([sx, sy]) => sx > 4 && sx + bw < width - 4 && !(avoid && sx - 4 < avoid.x1 && sx + bw + 4 > avoid.x0 && sy - 8 < avoid.y1 && sy + 8 > avoid.y0)) ?? spots[0];
+      ctx.fillStyle = `rgba(0,0,0,${0.72 * alpha})`; ctx.fillRect(lx - 4, ly - 8, bw + 8, 16);
+      ctx.fillStyle = `rgba(255,255,255,${0.92 * alpha})`; ctx.fillText(text, lx, ly);
+      ctx.fillStyle = `rgba(${PULSE},${alpha})`; ctx.fillText(extra, lx + lw, ly);
     }
 
     function draw(now) {
@@ -298,28 +298,50 @@
         ctx.moveTo(gaze.x, gaze.y - 20); ctx.lineTo(gaze.x, gaze.y - 7); ctx.moveTo(gaze.x, gaze.y + 7); ctx.lineTo(gaze.x, gaze.y + 20); ctx.stroke();
       }
 
-      // Wearables come online and stream home.
-      if (!still) { spawn(now); blips = blips.filter(b => now - b.born < b.life); }
+      // Trips: every visited place is a hollow square; a replay flies them in order.
+      ctx.lineWidth = 1;
+      const seen = new Set();
+      for (const trip of trips) {
+        if (seen.has(trip.name)) continue; seen.add(trip.name);
+        ctx.strokeStyle = 'rgba(255,255,255,.62)';
+        ctx.strokeRect(trip.xy[0] - 2.5, trip.xy[1] - 2.5, 5, 5);
+      }
+      const replayAt = t - 5200, SLOT = 2600;
+      if (!still && trips.length && replayAt > 0) {
+        const trip = trips[Math.floor(replayAt / SLOT) % trips.length], ph = (replayAt % SLOT) / SLOT;
+        const env = Math.min(1, ph / 0.08, (1 - ph) / 0.18);
+        const drawn = Math.min(1, ph / 0.42), last = Math.floor((trip.points.length - 1) * drawn);
+        ctx.fillStyle = `rgba(255,255,255,${(0.55 * env).toFixed(3)})`;
+        for (let j = 0; j <= last; j += 2) sq(trip.points[j][0], trip.points[j][1], 1.4);
+        if (drawn < 1) { const [px, py] = along(trip.points, drawn); ctx.fillStyle = '#fff'; sq(px, py, 3.6); }
+        else {
+          const g = Math.min(1, (ph - 0.42) / 0.3);
+          ctx.strokeStyle = `rgba(255,255,255,${(0.7 * (1 - g)).toFixed(3)})`;
+          ctx.beginPath(); ctx.arc(trip.xy[0], trip.xy[1], 4 + g * 14, 0, Math.PI * 2); ctx.stroke();
+          ctx.fillStyle = '#fff'; sq(trip.xy[0], trip.xy[1], 5);
+          label(trip.xy[0], trip.xy[1], trip.name, trip.note, trip.side || 1, trip.dy || -14, env);
+        }
+      }
+      // The gaze reveals what is under it.
+      if (gaze) for (const trip of trips) {
+        if (Math.hypot(trip.xy[0] - gaze.x, trip.xy[1] - gaze.y) > 24) continue;
+        ctx.fillStyle = '#fff'; sq(trip.xy[0], trip.xy[1], 5);
+        label(trip.xy[0], trip.xy[1], trip.name, trip.note, trip.side || 1, trip.dy || -14, 1);
+        break;
+      }
+
+      // You, if you clicked the map.
+      if (!still) blips = blips.filter(b => now - b.born < b.life);
       const [hx, hy] = home();
       for (const b of blips) {
         const age = still ? 1000 : now - b.born, env = still ? 1 : Math.min(1, age / 400, (b.life - age) / 800);
         const reveal = Math.min(1, age / 700), ex = b.x + (hx - b.x) * reveal, ey = b.y + (hy - b.y) * reveal;
         const steps = Math.max(2, Math.round(Math.hypot(ex - b.x, ey - b.y) / 7));
-        ctx.fillStyle = `rgba(${PULSE},${((b.you ? 0.5 : 0.22) * env).toFixed(3)})`;
-        for (let s = 0; s <= steps; s += b.you ? 1 : 2) sq(b.x + (ex - b.x) * s / steps, b.y + (ey - b.y) * s / steps, 1.2);
-        if (reveal === 1 && !still) {
-          const p = ((t / 1500) + b.phase) % 1;
-          ctx.fillStyle = `rgba(${PULSE},${(0.95 * env).toFixed(3)})`;
-          sq(b.x + (hx - b.x) * p, b.y + (hy - b.y) * p, 3);
-        }
-        ctx.fillStyle = b.you ? `rgba(${PULSE},${env})` : `rgba(255,255,255,${(0.85 * env).toFixed(3)})`;
-        sq(b.x, b.y, b.you ? 6 : 3.2);
-        if (age < 700) {
-          const g = age / 700;
-          ctx.strokeStyle = `rgba(${PULSE},${(0.6 * (1 - g)).toFixed(3)})`; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.arc(b.x, b.y, 3 + g * 12, 0, Math.PI * 2); ctx.stroke();
-        }
-        if (b.you) { ctx.font = '500 11px "Geist Mono", ui-monospace, monospace'; ctx.fillStyle = `rgba(${PULSE},${env})`; ctx.fillText('YOU', b.x + 9, b.y - 7); }
+        ctx.fillStyle = `rgba(${PULSE},${(0.5 * env).toFixed(3)})`;
+        for (let s = 0; s <= steps; s++) sq(b.x + (ex - b.x) * s / steps, b.y + (ey - b.y) * s / steps, 1.2);
+        if (reveal === 1 && !still) { const p = ((t / 1500) + b.phase) % 1; ctx.fillStyle = `rgba(${PULSE},${(0.95 * env).toFixed(3)})`; sq(b.x + (hx - b.x) * p, b.y + (hy - b.y) * p, 3); }
+        ctx.fillStyle = `rgba(${PULSE},${env})`; sq(b.x, b.y, 6);
+        ctx.font = '500 11px "Geist Mono", ui-monospace, monospace'; ctx.fillText('YOU', b.x + 9, b.y - 7);
       }
 
       // The route: legs draw in order, then carry packets.
@@ -336,9 +358,7 @@
         }
       });
 
-      // Places and labels, kept clear of the headline copy.
-      ctx.font = '500 10.5px "Geist Mono", ui-monospace, monospace';
-      ctx.textBaseline = 'middle';
+      // Places lived, with labels kept clear of the headline copy.
       Object.values(PLACES).forEach((pl, i) => {
         const appear = still ? 1 : Math.max(0, Math.min(1, (t - 300 - i * 700) / 500));
         if (appear <= 0) return;
@@ -350,13 +370,7 @@
         }
         ctx.fillStyle = `rgba(${PULSE},${appear})`; sq(x, y, 6);
         ctx.fillStyle = '#000'; sq(x, y, 2);
-        const label = pl.name.toUpperCase(), note = ` · ${pl.note.toUpperCase()}`;
-        const lw = ctx.measureText(label).width, nw = ctx.measureText(note).width, bw = lw + nw;
-        const spots = [[pl.side, pl.dy], [-pl.side, pl.dy], [pl.side, -pl.dy], [-pl.side, -pl.dy]].map(([s, dy]) => [s > 0 ? x + 10 : x - 10 - bw, y + dy]);
-        const [lx, ly] = spots.find(([sx, sy]) => sx > 4 && sx + bw < width - 4 && !(avoid && sx - 4 < avoid.x1 && sx + bw + 4 > avoid.x0 && sy - 8 < avoid.y1 && sy + 8 > avoid.y0)) ?? spots[0];
-        ctx.fillStyle = `rgba(0,0,0,${0.7 * appear})`; ctx.fillRect(lx - 4, ly - 8, bw + 8, 16);
-        ctx.fillStyle = `rgba(255,255,255,${0.92 * appear})`; ctx.fillText(label, lx, ly);
-        ctx.fillStyle = `rgba(${PULSE},${appear})`; ctx.fillText(note, lx + lw, ly);
+        label(x, y, pl.name, pl.note, pl.side, pl.dy, appear);
       });
     }
 
@@ -372,7 +386,7 @@
       addBlip(d ? d.x : p.x, d ? d.y : p.y, now, true);
       if (!moving) draw(now); else start();
     });
-    motionListeners.push(on => { if (on) { started = performance.now() - 6000; start(); } else { stop(); blips = blips.filter(b => b.you); draw(performance.now()); } });
+    motionListeners.push(on => { if (on) { started = performance.now() - 6000; start(); } else { stop(); draw(performance.now()); } });
     document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else start(); });
     observe([hero], entry => { visible = entry.isIntersecting; if (visible) start(); else stop(); });
     let timer = 0;

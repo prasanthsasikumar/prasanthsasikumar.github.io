@@ -112,7 +112,7 @@
       more.lastElementChild.textContent = open ? '−' : '+';
     };
     more.addEventListener('click', () => setOpen(actsBox.classList.contains('is-collapsed')));
-    const openFor = id => { const el = id && document.getElementById(id); if (el?.classList.contains('is-extra')) setOpen(true); };
+    const openFor = id => { const el = id ? document.getElementById(id) : null; if (el && el.classList.contains('is-extra')) setOpen(true); };
     document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', () => openFor(link.getAttribute('href').slice(1))));
     openFor(location.hash.slice(1));
   }
@@ -322,8 +322,8 @@
       const seen = new Set();
       for (const trip of trips) {
         if (seen.has(trip.name)) continue; seen.add(trip.name);
-        ctx.strokeStyle = 'rgba(255,255,255,.62)';
-        ctx.strokeRect(trip.xy[0] - 2.5, trip.xy[1] - 2.5, 5, 5);
+        ctx.strokeStyle = 'rgba(255,255,255,.3)';
+        ctx.strokeRect(trip.xy[0] - 2, trip.xy[1] - 2, 4, 4);
       }
       // Several trips fly at once, each leaving from where home was at the time.
       const replayAt = t - 4200, SLOT = 1300, SPAN = 4;
@@ -428,5 +428,68 @@
       layout();
     };
     img.src = 'assets/world.png';
+  }
+  /* Footer: dot-matrix lettering. A light sweep runs across it; the pointer lights it in the pulse colour. */
+  const lettering = document.getElementById('dot-text');
+  if (lettering) dotText(lettering);
+
+  function dotText(canvas) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const lines = (canvas.dataset.lines || '').split('|');
+    const noise = (a, b) => { let h = Math.imul(a, 374761393) + Math.imul(b, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+    let width = 0, height = 0, ratio = 1, cell = 6, points = [], pointer = null, frame = 0, visible = false;
+    function layout() {
+      const box = canvas.getBoundingClientRect();
+      width = box.width; height = box.height;
+      if (!width || !height) return;
+      ratio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio);
+      cell = Math.max(4, Math.round(height / 30));
+      const cols = Math.floor(width / cell), rows = Math.floor(height / cell);
+      const scratch = document.createElement('canvas');
+      scratch.width = cols; scratch.height = rows;
+      const sc = scratch.getContext('2d', { willReadFrequently: true });
+      const lineH = Math.floor(rows / lines.length);
+      let size = Math.floor(lineH * 0.86);
+      sc.font = `500 ${size}px "Geist Mono", ui-monospace, monospace`;
+      const widest = Math.max(...lines.map(line => sc.measureText(line).width));
+      if (widest > cols - 1) size = Math.floor(size * (cols - 1) / widest);
+      sc.font = `500 ${size}px "Geist Mono", ui-monospace, monospace`;
+      sc.fillStyle = '#fff';
+      lines.forEach((line, i) => sc.fillText(line, 0, (i + 1) * lineH - Math.round(lineH * 0.18)));
+      const px = sc.getImageData(0, 0, cols, rows).data;
+      points = [];
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        if (px[(y * cols + x) * 4 + 3] > 100) points.push({ x: x * cell + cell / 2, y: y * cell + cell / 2, n: noise(x, y) });
+      }
+      draw(performance.now());
+    }
+    function draw(now) {
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      const size = Math.max(2, cell * 0.56);
+      const wave = moving ? ((now % 7000) / 7000) * (width + height) * 1.3 - height : -1e6;
+      for (const p of points) {
+        let glow = 0;
+        if (pointer) { const d = Math.hypot(p.x - pointer.x, p.y - pointer.y); if (d < 96) glow = Math.pow(1 - d / 96, 1.3); }
+        if (glow > 0.03) ctx.fillStyle = `rgba(255,122,69,${(0.3 + glow * 0.7).toFixed(3)})`;
+        else {
+          const off = Math.abs(p.x + p.y * 0.55 - wave);
+          ctx.fillStyle = `rgba(255,255,255,${(0.18 + p.n * 0.08 + (off < 70 ? (1 - off / 70) * 0.3 : 0)).toFixed(3)})`;
+        }
+        ctx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
+      }
+    }
+    function loop(now) { frame = 0; draw(now); if (moving && visible && !document.hidden) frame = requestAnimationFrame(loop); }
+    const start = () => { if (!frame && moving && visible && !document.hidden) frame = requestAnimationFrame(loop); };
+    const stop = () => { if (frame) cancelAnimationFrame(frame); frame = 0; };
+    canvas.addEventListener('pointermove', e => { const b = canvas.getBoundingClientRect(); pointer = { x: e.clientX - b.left, y: e.clientY - b.top }; if (!moving) draw(performance.now()); });
+    canvas.addEventListener('pointerleave', () => { pointer = null; if (!moving) draw(performance.now()); });
+    observe([canvas], entry => { visible = entry.isIntersecting; if (visible) start(); else stop(); }, { rootMargin: '40px' });
+    motionListeners.push(on => { if (on) start(); else { stop(); draw(performance.now()); } });
+    let timer = 0;
+    new ResizeObserver(() => { clearTimeout(timer); timer = setTimeout(layout, 120); }).observe(canvas);
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(layout);
   }
 })();

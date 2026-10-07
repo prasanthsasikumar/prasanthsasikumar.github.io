@@ -34,7 +34,8 @@ hosted free on GitHub Pages. Your usual job here is to **make it about a new per
 9. **03 Research** (`.metrics`, `.paper-grid`): numbers, then papers grouped into clusters.
    Delete this section if the person does not publish.
 10. **04 Open source** (`.repo-grid`): repos, a multiple of 3.
-11. **Footer**: email, links. Then update `README.md` if the person wants their own wording.
+11. **Footer**: the dot-matrix line is `data-lines` on `#dot-text` (`|` splits lines; keep it short),
+    plus the `.dot-fallback` text and the links list. Then update `README.md` if the person wants their own wording.
 
 ## Story and product cards
 
@@ -100,6 +101,8 @@ python3 -m http.server 8000   # then open http://localhost:8000
    of the headline.
 3. Press "Motion off": every figure and the map still make sense when still.
 4. `node --check assets/site.js assets/config.js` passes.
+5. Open the browser console: **zero errors**. One runtime error stops every script after it
+   (the map and footer lettering go blank), so this check matters more than it looks.
 
 ## Deploy
 

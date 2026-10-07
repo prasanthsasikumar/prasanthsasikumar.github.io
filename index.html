@@ -62,7 +62,8 @@
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <canvas class="hero-fx" role="img" aria-label="A dot field that works like an eye tracker: a gaze reticle wanders or follows your pointer, leaves a heatmap and scanpath, and a heartbeat ripples out from it."></canvas>
+      <canvas class="hero-base" aria-hidden="true"></canvas>
+      <canvas class="hero-fx" role="img" aria-label="A dot-matrix map tracing Prasanth's route from Kerala in 2010 to Christchurch in 2017, Auckland in 2019 and Singapore now, with the FlowsXR team in Colombo and a research collaboration in Japan. Wearables blink online and stream home to Singapore. Your pointer acts as a gaze reticle; click to add yourself."></canvas>
       <div class="hero-shade" aria-hidden="true"></div>
       <div class="wrap hero-body">
         <div class="hero-copy">
@@ -76,14 +77,15 @@
           </div>
           <p class="terminal"><span class="sr-only">flowsxr sense --gaze --pulse --motion --for=you</span><span class="prompt" aria-hidden="true">$</span><span class="typed" aria-hidden="true" data-type="flowsxr sense --gaze --pulse --for=" data-cycle="remote-teams,field-techs,classrooms,sleep,you">flowsxr sense --gaze --pulse --for=you</span><span class="caret" aria-hidden="true"></span></p>
         </div>
-        <div class="hero-space" aria-hidden="true"></div>
+        <div class="map-focus" aria-hidden="true"></div>
       </div>
       <div class="hero-foot">
         <div class="wrap hero-legend">
-          <span>Move your cursor · the field reads your gaze</span>
+          <span>The route so far · 2010 → now</span>
           <span class="legend-keys">
-            <span><i aria-hidden="true"></i>Gaze heatmap</span>
-            <span><i class="ring" aria-hidden="true"></i>Pulse <span class="bpm" data-bpm>66</span> bpm</span>
+            <span><i aria-hidden="true"></i>Journey</span>
+            <span><i class="peer" aria-hidden="true"></i>Wearables online</span>
+            <span><i class="ring" aria-hidden="true"></i>Click the map to join</span>
             <button class="motion-toggle" type="button" aria-pressed="true">Motion on</button>
           </span>
         </div>

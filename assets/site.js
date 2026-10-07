@@ -147,113 +147,251 @@
     });
   }
 
-  /* Hero: a dot field read like an eye tracker. The gaze follows your pointer
-     (or wanders on its own), lights a heatmap, and a heartbeat ripples out from it. */
-  const canvas = document.querySelector('.hero-fx');
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
-    const bpmLabel = document.querySelector('[data-bpm]');
-    const PULSE = [255, 122, 69];
-    let width = 0, height = 0, dpr = 1, gap = 14, dots = [];
-    let gaze = { x: 0, y: 0 }, target = { x: 0, y: 0 }, pointerAt = 0, start = performance.now();
-    let heat = null, cols = 0, rows = 0, visible = true, raf = 0, bpm = 66;
-    const fixations = [];
+  /* Hero: a dot-matrix map of the route so far. Routes draw in order and carry
+     packets, wearables blink online and stream home to Singapore, the pointer
+     acts as a gaze reticle that lights the land, and a click adds you. */
+  const fx = document.querySelector('.hero-fx');
+  const base = document.querySelector('.hero-base');
+  const focus = document.querySelector('.map-focus');
+  if (fx && base && focus) heroMap();
 
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = rect.width; height = rect.height;
-      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      gap = width < 700 ? 12 : 14;
-      cols = Math.ceil(width / gap) + 1; rows = Math.ceil(height / gap) + 1;
-      heat = new Float32Array(cols * rows);
-      dots = [];
-      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) dots.push(c * gap + (r % 2 ? gap / 2 : 0), r * gap);
-      const home = restPoint();
-      gaze.x = target.x = home.x; gaze.y = target.y = home.y;
-      if (!moving) draw(performance.now());
+  function heroMap() {
+    const hero = fx.closest('.hero');
+    const bctx = base.getContext('2d'), ctx = fx.getContext('2d');
+    const LAT_TOP = 84, RES = 0.5;
+    const AREA = { lon0: 62, lon1: 192, lat0: 44, lat1: -50 };
+    const PULSE = '255,122,69';
+    const PLACES = {
+      ker: { name: 'Kerala', note: '2010', lat: 8.52, lon: 76.94, side: -1, dy: -14 },
+      chc: { name: 'Christchurch', note: '2017', lat: -43.53, lon: 172.64, side: -1, dy: 14 },
+      akl: { name: 'Auckland', note: '2019', lat: -36.85, lon: 174.76, side: -1, dy: -14 },
+      sg: { name: 'Singapore', note: 'now', lat: 1.35, lon: 103.82, side: 1, dy: 16, home: true },
+      cmb: { name: 'Colombo', note: 'team', lat: 6.93, lon: 79.85, side: -1, dy: 16 },
+      jp: { name: 'Japan', note: 'Asahi collab', lat: 35.68, lon: 139.69, side: 1, dy: -12 },
     };
-    const restPoint = () => width < 980 ? { x: width * 0.62, y: height * 0.8 } : { x: width * 0.74, y: height * 0.46 };
+    const ROUTES = [['ker', 'chc'], ['chc', 'akl'], ['akl', 'sg'], ['sg', 'cmb', true], ['sg', 'jp', true]];
+    const hash = (a, b) => { let h = Math.imul(a, 374761393) + Math.imul(b, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+    let mask = null, mw = 0, mh = 0;
+    let width = 0, height = 0, ratio = 1, k = 1, ox = 0, oy = 0, gap = 7, dot = 2;
+    let dots = [], cols = [], routes = [], blips = [], region = null, avoid = null;
+    let pointer = null, gaze = null, frame = 0, visible = true, started = performance.now(), lastBlip = 0;
+    const project = (lon, lat) => [ox + (lon - AREA.lon0) * k, oy + (AREA.lat0 - lat) * k];
+    const home = () => project(PLACES.sg.lon, PLACES.sg.lat);
 
-    const wander = t => {
-      const home = restPoint(), s = t / 1000;
-      const rx = width < 980 ? width * 0.28 : width * 0.16, ry = width < 980 ? height * 0.1 : height * 0.24;
-      return { x: home.x + Math.sin(s * 0.53) * rx + Math.sin(s * 1.7) * rx * 0.18, y: home.y + Math.sin(s * 0.37 + 1) * ry + Math.cos(s * 2.3) * ry * 0.12 };
+    function layout() {
+      const hb = hero.getBoundingClientRect(), fb = focus.getBoundingClientRect();
+      width = hb.width; height = hb.height;
+      ratio = Math.min(window.devicePixelRatio || 1, 2);
+      for (const c of [base, fx]) { c.width = Math.round(width * ratio); c.height = Math.round(height * ratio); }
+      const spanLon = AREA.lon1 - AREA.lon0, spanLat = AREA.lat0 - AREA.lat1;
+      const bw = Math.max(120, fb.width), bh = Math.max(120, fb.height);
+      k = Math.min(bw / spanLon, bh / spanLat);
+      ox = fb.left - hb.left + (bw - spanLon * k) / 2;
+      oy = fb.top - hb.top + (bh - spanLat * k) / 2;
+      region = { x0: ox, x1: ox + spanLon * k, y0: oy, y1: oy + spanLat * k };
+      const copy = hero.querySelector('.hero-copy')?.getBoundingClientRect();
+      avoid = copy ? { x0: copy.left - hb.left - 10, x1: copy.right - hb.left + 10, y0: copy.top - hb.top - 10, y1: copy.bottom - hb.top + 10 } : null;
+      gap = width < 700 ? 5 : width < 1200 ? 6 : 7;
+      dot = gap < 6 ? 1.6 : 2;
+      buildDots(); drawBase();
+      routes = ROUTES.map(([a, b, remote]) => ({ remote: !!remote, points: arc(PLACES[a], PLACES[b]) }));
+      blips = [];
+      draw(performance.now()); start();
+    }
+
+    function buildDots() {
+      dots = []; cols = [];
+      const nc = Math.ceil(width / gap), nr = Math.ceil(height / gap);
+      for (let i = 0; i < nc; i++) {
+        const list = [], x = i * gap + gap / 2;
+        const lon = ((AREA.lon0 + (x - ox) / k + 180) % 360 + 360) % 360 - 180;
+        const col = Math.min(mw - 1, Math.floor((lon + 180) / RES));
+        for (let j = 0; j < nr; j++) {
+          const y = j * gap + gap / 2;
+          const row = Math.floor((LAT_TOP - (AREA.lat0 - (y - oy) / k)) / RES);
+          if (row < 0 || row >= mh || !mask[row * mw + col]) continue;
+          list.push(dots.length);
+          dots.push({ x, y, a: 0.14 + hash(i, j) * 0.18 });
+        }
+        cols.push(list);
+      }
+    }
+
+    function drawBase() {
+      bctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      bctx.clearRect(0, 0, width, height);
+      const buckets = new Map();
+      for (const d of dots) { const key = Math.round(d.a * 40) / 40; if (!buckets.has(key)) buckets.set(key, []); buckets.get(key).push(d); }
+      for (const [a, list] of buckets) {
+        bctx.fillStyle = `rgba(255,255,255,${a})`; bctx.beginPath();
+        for (const d of list) bctx.rect(d.x - dot / 2, d.y - dot / 2, dot, dot);
+        bctx.fill();
+      }
+    }
+
+    function arc(a, b) {
+      const [x1, y1] = project(a.lon, a.lat), [x2, y2] = project(b.lon, b.lat);
+      const dx = x2 - x1, dy = y2 - y1, dist = Math.hypot(dx, dy) || 1;
+      let nx = -dy / dist, ny = dx / dist;
+      if (ny > 0) { nx = -nx; ny = -ny; }
+      const lift = Math.min(dist * 0.28, 130);
+      const cx = (x1 + x2) / 2 + nx * lift, cy = (y1 + y2) / 2 + ny * lift;
+      const n = Math.max(10, Math.round(dist / 6));
+      return Array.from({ length: n + 1 }, (_, i) => { const t = i / n, u = 1 - t; return [u * u * x1 + 2 * u * t * cx + t * t * x2, u * u * y1 + 2 * u * t * cy + t * t * y2]; });
+    }
+    const along = (pts, t) => {
+      const p = Math.max(0, Math.min(pts.length - 1, t * (pts.length - 1))), i = Math.floor(p), f = p - i, a = pts[i], b = pts[Math.min(pts.length - 1, i + 1)];
+      return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
     };
+    const sq = (x, y, s) => ctx.fillRect(x - s / 2, y - s / 2, s, s);
 
-    const draw = now => {
-      const t = now - start;
-      if (moving && now - pointerAt > 2600) {
-        // Saccade-like motion: jump to a new wander point every ~420 ms.
-        if (!draw.next || now > draw.next) { const w = wander(t); target.x = w.x; target.y = w.y; draw.next = now + 380 + Math.random() * 260; }
+    function nearestDot(x, y, max) {
+      let best = null, bd = max;
+      const c0 = Math.max(0, Math.floor((x - max) / gap)), c1 = Math.min(cols.length - 1, Math.ceil((x + max) / gap));
+      for (let c = c0; c <= c1; c++) for (const i of cols[c]) { const d = dots[i], dd = Math.hypot(d.x - x, d.y - y); if (dd < bd) { best = d; bd = dd; } }
+      return best;
+    }
+    function addBlip(x, y, now, you = false) {
+      blips.push({ x, y, born: now, life: you ? 16000 : 4200 + Math.random() * 3000, you, phase: Math.random() });
+      if (blips.length > 26) blips.splice(0, blips.length - 26);
+    }
+    function spawn(now) {
+      if (!dots.length || now - lastBlip < 650) return;
+      lastBlip = now;
+      for (let n = 0; n < 14; n++) {
+        const d = dots[(Math.random() * dots.length) | 0];
+        if (d.x >= region.x0 && d.x <= region.x1 && d.y >= region.y0 && d.y <= region.y1) { addBlip(d.x, d.y, now); return; }
       }
-      const k = moving ? 0.22 : 1;
-      gaze.x += (target.x - gaze.x) * k; gaze.y += (target.y - gaze.y) * k;
+    }
 
-      // Accumulate gaze heat, decay slowly.
-      const gc = Math.round(gaze.x / gap), gr = Math.round(gaze.y / gap), R = 6;
-      for (let i = 0; i < heat.length; i++) heat[i] *= moving ? 0.985 : 0;
-      for (let r = gr - R; r <= gr + R; r++) for (let c = gc - R; c <= gc + R; c++) {
-        if (r < 0 || c < 0 || r >= rows || c >= cols) continue;
-        const d2 = (r - gr) ** 2 + (c - gc) ** 2;
-        heat[r * cols + c] = Math.min(1, heat[r * cols + c] + Math.exp(-d2 / 7) * (moving ? 0.06 : 1));
-      }
-      if (moving && (!fixations.length || Math.hypot(fixations[fixations.length - 1].x - gaze.x, fixations[fixations.length - 1].y - gaze.y) > 70)) {
-        fixations.push({ x: gaze.x, y: gaze.y }); if (fixations.length > 7) fixations.shift();
-      }
-
-      const period = 60000 / bpm, phase = (t % period) / period;
-      const ripple = moving ? phase * Math.max(width, height) * 0.5 : -1;
-      const beatGlow = moving ? Math.max(0, 1 - phase * 5) : 0.6;
-
+    function draw(now) {
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       ctx.clearRect(0, 0, width, height);
-      for (let i = 0, n = 0; i < dots.length; i += 2, n++) {
-        const x = dots[i], y = dots[i + 1];
-        const h = heat[n] || 0;
-        const dist = Math.hypot(x - gaze.x, y - gaze.y);
-        const ring = ripple > 0 ? Math.max(0, 1 - Math.abs(dist - ripple) / 22) * (1 - phase) : 0;
-        const base = 0.1 + 0.05 * Math.sin(x * 0.013 + y * 0.021);
-        if (h > 0.04 || ring > 0.02) {
-          const a = Math.min(1, base + h * 0.85 + ring * 0.55);
-          ctx.fillStyle = `rgba(${PULSE[0]},${PULSE[1] + (1 - h) * 60 | 0},${PULSE[2] + (1 - h) * 80 | 0},${a})`;
-          const s = 1.3 + h * 1.5 + ring;
-          ctx.fillRect(x - s / 2, y - s / 2, s, s);
-        } else {
-          ctx.fillStyle = `rgba(255,255,255,${base})`;
-          ctx.fillRect(x - 0.6, y - 0.6, 1.2, 1.2);
+      if (!dots.length) return;
+      const t = now - started, still = !moving;
+
+      // A heartbeat that ripples out from home across the land.
+      if (!still) {
+        const [hx, hy] = home(), beat = (t % 1700) / 1700, r = beat * Math.max(width, height) * 0.55;
+        const c0 = Math.max(0, Math.floor((hx - r - 40) / gap)), c1 = Math.min(cols.length - 1, Math.ceil((hx + r + 40) / gap));
+        for (let c = c0; c <= c1; c++) for (const i of cols[c]) {
+          const d = dots[i], s = 1 - Math.abs(Math.hypot(d.x - hx, d.y - hy) - r) / 26;
+          if (s <= 0) continue;
+          ctx.fillStyle = `rgba(255,255,255,${(s * 0.3 * (1 - beat)).toFixed(3)})`;
+          sq(d.x, d.y, dot);
         }
       }
-      // Scanpath between recent fixations.
-      if (fixations.length > 1) {
-        ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-        ctx.beginPath(); fixations.forEach((f, i) => i ? ctx.lineTo(f.x, f.y) : ctx.moveTo(f.x, f.y)); ctx.stroke(); ctx.setLineDash([]);
-        fixations.forEach((f, i) => { ctx.strokeStyle = `rgba(255,255,255,${0.1 + i * 0.05})`; ctx.strokeRect(f.x - 3, f.y - 3, 6, 6); });
+
+      // Gaze reticle: the pointer lights the land beneath it.
+      if (pointer) {
+        gaze = gaze ? { x: gaze.x + (pointer.x - gaze.x) * (still ? 1 : 0.25), y: gaze.y + (pointer.y - gaze.y) * (still ? 1 : 0.25) } : { ...pointer };
+        const R = 80, c0 = Math.max(0, Math.floor((gaze.x - R) / gap)), c1 = Math.min(cols.length - 1, Math.ceil((gaze.x + R) / gap));
+        for (let c = c0; c <= c1; c++) for (const i of cols[c]) {
+          const d = dots[i], dd = Math.hypot(d.x - gaze.x, d.y - gaze.y);
+          if (dd >= R) continue;
+          ctx.fillStyle = `rgba(${PULSE},${(Math.pow(1 - dd / R, 1.4) * 0.95).toFixed(3)})`;
+          sq(d.x, d.y, dot + 0.8);
+        }
+        ctx.strokeStyle = `rgba(${PULSE},.9)`; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(gaze.x, gaze.y, 12, 0, Math.PI * 2);
+        ctx.moveTo(gaze.x - 20, gaze.y); ctx.lineTo(gaze.x - 7, gaze.y); ctx.moveTo(gaze.x + 7, gaze.y); ctx.lineTo(gaze.x + 20, gaze.y);
+        ctx.moveTo(gaze.x, gaze.y - 20); ctx.lineTo(gaze.x, gaze.y - 7); ctx.moveTo(gaze.x, gaze.y + 7); ctx.lineTo(gaze.x, gaze.y + 20); ctx.stroke();
       }
-      // Gaze reticle.
-      ctx.strokeStyle = `rgba(${PULSE.join(',')},${0.55 + beatGlow * 0.45})`; ctx.lineWidth = 1.25;
-      ctx.beginPath(); ctx.arc(gaze.x, gaze.y, 13 + beatGlow * 4, 0, Math.PI * 2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(gaze.x - 22, gaze.y); ctx.lineTo(gaze.x - 8, gaze.y); ctx.moveTo(gaze.x + 8, gaze.y); ctx.lineTo(gaze.x + 22, gaze.y);
-      ctx.moveTo(gaze.x, gaze.y - 22); ctx.lineTo(gaze.x, gaze.y - 8); ctx.moveTo(gaze.x, gaze.y + 8); ctx.lineTo(gaze.x, gaze.y + 22); ctx.stroke();
-      ctx.fillStyle = `rgb(${PULSE.join(',')})`; ctx.fillRect(gaze.x - 2, gaze.y - 2, 4, 4);
-      ctx.font = '10px "Geist Mono", ui-monospace, monospace'; ctx.fillStyle = 'rgba(255,255,255,.55)';
-      ctx.fillText(`GAZE ${Math.round(gaze.x)},${Math.round(gaze.y)}`, gaze.x + 18, gaze.y - 16);
-    };
 
-    const loop = now => { draw(now); raf = moving && visible ? requestAnimationFrame(loop) : 0; };
-    const kick = () => { if (!raf && moving && visible) raf = requestAnimationFrame(loop); if (!moving) draw(performance.now()); };
+      // Wearables come online and stream home.
+      if (!still) { spawn(now); blips = blips.filter(b => now - b.born < b.life); }
+      const [hx, hy] = home();
+      for (const b of blips) {
+        const age = still ? 1000 : now - b.born, env = still ? 1 : Math.min(1, age / 400, (b.life - age) / 800);
+        const reveal = Math.min(1, age / 700), ex = b.x + (hx - b.x) * reveal, ey = b.y + (hy - b.y) * reveal;
+        const steps = Math.max(2, Math.round(Math.hypot(ex - b.x, ey - b.y) / 7));
+        ctx.fillStyle = `rgba(${PULSE},${((b.you ? 0.5 : 0.22) * env).toFixed(3)})`;
+        for (let s = 0; s <= steps; s += b.you ? 1 : 2) sq(b.x + (ex - b.x) * s / steps, b.y + (ey - b.y) * s / steps, 1.2);
+        if (reveal === 1 && !still) {
+          const p = ((t / 1500) + b.phase) % 1;
+          ctx.fillStyle = `rgba(${PULSE},${(0.95 * env).toFixed(3)})`;
+          sq(b.x + (hx - b.x) * p, b.y + (hy - b.y) * p, 3);
+        }
+        ctx.fillStyle = b.you ? `rgba(${PULSE},${env})` : `rgba(255,255,255,${(0.85 * env).toFixed(3)})`;
+        sq(b.x, b.y, b.you ? 6 : 3.2);
+        if (age < 700) {
+          const g = age / 700;
+          ctx.strokeStyle = `rgba(${PULSE},${(0.6 * (1 - g)).toFixed(3)})`; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.arc(b.x, b.y, 3 + g * 12, 0, Math.PI * 2); ctx.stroke();
+        }
+        if (b.you) { ctx.font = '500 11px "Geist Mono", ui-monospace, monospace'; ctx.fillStyle = `rgba(${PULSE},${env})`; ctx.fillText('YOU', b.x + 9, b.y - 7); }
+      }
 
-    canvas.addEventListener('pointermove', event => {
-      const rect = canvas.getBoundingClientRect();
-      target.x = event.clientX - rect.left; target.y = event.clientY - rect.top; pointerAt = performance.now();
-      bpm = Math.min(96, bpm + 0.6);
-      if (bpmLabel) bpmLabel.textContent = Math.round(bpm);
-      if (!moving) { gaze.x = target.x; gaze.y = target.y; draw(performance.now()); }
+      // The route: legs draw in order, then carry packets.
+      routes.forEach((r, i) => {
+        const prog = still ? 1 : Math.max(0, Math.min(1, (t - 500 - i * 900) / 1100));
+        if (prog <= 0) return;
+        ctx.fillStyle = `rgba(${PULSE},${r.remote ? 0.45 : 0.85})`;
+        const last = Math.floor((r.points.length - 1) * prog);
+        for (let j = 0; j <= last; j += r.remote ? 2 : 1) sq(r.points[j][0], r.points[j][1], 1.6);
+        if (!still && prog === 1) {
+          const c = ((t + i * 700) % 3400) / 3400, p = r.remote && Math.floor((t + i * 700) / 3400) % 2 ? 1 - c : c;
+          const [px, py] = along(r.points, p);
+          ctx.fillStyle = `rgb(${PULSE})`; sq(px, py, 3.6);
+        }
+      });
+
+      // Places and labels, kept clear of the headline copy.
+      ctx.font = '500 10.5px "Geist Mono", ui-monospace, monospace';
+      ctx.textBaseline = 'middle';
+      Object.values(PLACES).forEach((pl, i) => {
+        const appear = still ? 1 : Math.max(0, Math.min(1, (t - 300 - i * 700) / 500));
+        if (appear <= 0) return;
+        const [x, y] = project(pl.lon, pl.lat);
+        if (pl.home) {
+          const beat = still ? 0.4 : (t % 1700) / 1700;
+          ctx.strokeStyle = `rgba(${PULSE},${((1 - beat) * 0.8 * appear).toFixed(3)})`; ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.arc(x, y, 5 + beat * 18, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.fillStyle = `rgba(${PULSE},${appear})`; sq(x, y, 6);
+        ctx.fillStyle = '#000'; sq(x, y, 2);
+        const label = pl.name.toUpperCase(), note = ` · ${pl.note.toUpperCase()}`;
+        const lw = ctx.measureText(label).width, nw = ctx.measureText(note).width, bw = lw + nw;
+        const spots = [[pl.side, pl.dy], [-pl.side, pl.dy], [pl.side, -pl.dy], [-pl.side, -pl.dy]].map(([s, dy]) => [s > 0 ? x + 10 : x - 10 - bw, y + dy]);
+        const [lx, ly] = spots.find(([sx, sy]) => sx > 4 && sx + bw < width - 4 && !(avoid && sx - 4 < avoid.x1 && sx + bw + 4 > avoid.x0 && sy - 8 < avoid.y1 && sy + 8 > avoid.y0)) ?? spots[0];
+        ctx.fillStyle = `rgba(0,0,0,${0.7 * appear})`; ctx.fillRect(lx - 4, ly - 8, bw + 8, 16);
+        ctx.fillStyle = `rgba(255,255,255,${0.92 * appear})`; ctx.fillText(label, lx, ly);
+        ctx.fillStyle = `rgba(${PULSE},${appear})`; ctx.fillText(note, lx + lw, ly);
+      });
+    }
+
+    function loop(now) { frame = 0; draw(now); if (moving && visible && !document.hidden) frame = requestAnimationFrame(loop); }
+    function start() { if (!frame && moving && visible && !document.hidden) frame = requestAnimationFrame(loop); }
+    function stop() { if (frame) cancelAnimationFrame(frame); frame = 0; }
+
+    const local = e => { const b = fx.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
+    fx.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { pointer = local(e); if (!moving) draw(performance.now()); } });
+    fx.addEventListener('pointerleave', () => { pointer = null; gaze = null; if (!moving) draw(performance.now()); });
+    fx.addEventListener('click', e => {
+      const p = local(e), now = performance.now(), d = nearestDot(p.x, p.y, 18);
+      addBlip(d ? d.x : p.x, d ? d.y : p.y, now, true);
+      if (!moving) draw(now); else start();
     });
-    setInterval(() => { if (bpm > 66) { bpm = Math.max(66, bpm - 1); if (bpmLabel) bpmLabel.textContent = Math.round(bpm); } }, 400);
-    observe([canvas], entry => { visible = entry.isIntersecting; kick(); });
-    window.addEventListener('resize', () => { resize(); kick(); });
-    motionListeners.push(() => kick());
-    resize(); kick();
+    motionListeners.push(on => { if (on) { started = performance.now() - 6000; start(); } else { stop(); blips = blips.filter(b => b.you); draw(performance.now()); } });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else start(); });
+    observe([hero], entry => { visible = entry.isIntersecting; if (visible) start(); else stop(); });
+    let timer = 0;
+    new ResizeObserver(() => { clearTimeout(timer); timer = setTimeout(() => { if (mask) layout(); }, 140); }).observe(hero);
+    document.fonts?.ready.then(() => { if (mask) draw(performance.now()); });
+
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      const s = document.createElement('canvas');
+      s.width = mw = img.naturalWidth; s.height = mh = img.naturalHeight;
+      const sc = s.getContext('2d', { willReadFrequently: true });
+      sc.drawImage(img, 0, 0);
+      const px = sc.getImageData(0, 0, mw, mh).data;
+      mask = new Uint8Array(mw * mh);
+      for (let i = 0; i < mask.length; i++) mask[i] = px[i * 4] > 127 ? 1 : 0;
+      started = performance.now();
+      layout();
+    };
+    img.src = 'assets/world.png';
   }
 })();

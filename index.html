@@ -275,18 +275,29 @@
               <rect class="panel" x="158" y="96" width="18" height="11"/><circle class="fill-accent" cx="167" cy="101.5" r="2"/>
               <rect class="panel" x="91" y="214" width="18" height="11"/><circle class="fill-accent" cx="100" cy="219.5" r="2"/>
               <path class="dash" d="M42 98L72 76M42 106L72 170M158 98L128 76M158 106L128 170M94 214L78 176M106 214L122 176"/>
-              <path class="dash-hi flow" d="M182 134H214"/>
-              <rect class="panel" x="214" y="118" width="62" height="32"/>
-              <text class="small" x="222" y="131">C++ point</text>
-              <text class="small" x="222" y="143">cloud stitch</text>
-              <path class="dash-hi flow" d="M276 134H300"/>
-              <text x="300" y="18">AR playback</text>
-              <g class="blink" style="animation-duration:3s"><use href="#vp-person" x="0" y="0" fill="url(#vp-dots)" transform="translate(330 70) scale(.72)"/></g>
-              <rect class="panel" x="296" y="190" width="108" height="8"/>
-              <rect class="box" x="306" y="170" width="18" height="20"/>
-              <rect class="dash-acc" x="330" y="176" width="18" height="14"/>
-              <g class="hop" style="--x:-24px;--y:28px"><rect class="accent" x="354" y="148" width="18" height="14" style="fill:#000"/></g>
-              <text class="step-a" x="40" y="246">Capture</text><text x="96" y="246">›</text><text class="step-b" x="108" y="246">Stitch</text><text x="156" y="246">›</text><text class="step-c" x="168" y="246">Replay in AR</text>
+              <path class="dash-hi flow" d="M182 132H194"/>
+              <rect class="panel" x="194" y="114" width="84" height="36"/>
+              <text class="small" x="203" y="129">C++ point</text>
+              <text class="small" x="203" y="141">cloud stitch</text>
+              <path class="dash-hi flow" d="M278 132H290"/>
+              <text x="290" y="18">Learner's view</text>
+              <defs><clipPath id="vp-visor"><rect x="290" y="34" width="124" height="166" rx="20"/></clipPath></defs>
+              <rect class="panel" x="290" y="34" width="124" height="166" rx="20"/>
+              <g clip-path="url(#vp-visor)">
+                <path class="stroke-2" d="M290 150L326 132H378L414 150"/>
+                <g class="blink" style="animation-duration:3s"><use href="#vp-person" x="0" y="0" fill="url(#vp-dots)" transform="translate(380 86) scale(.5)"/></g>
+                <rect class="panel" x="300" y="152" width="104" height="7"/>
+                <rect class="box" x="310" y="138" width="16" height="14"/>
+                <rect class="dash-acc" x="330" y="140" width="16" height="12"/>
+                <g class="hop" style="--x:-24px;--y:22px"><rect class="accent" x="354" y="118" width="16" height="12" style="fill:#000"/></g>
+                <path class="dash-acc flow" d="M366 110C356 100 340 112 338 132"/>
+              </g>
+              <path class="accent" d="M300 48v-6h6M404 48v-6h-6M300 186v6h6M404 186v6h-6"/>
+              <text class="small acc" x="306" y="58">Expert replay</text>
+              <path class="stroke" d="M306 176H398"/>
+              <rect class="fill-accent grow tb-l" x="306" y="174.5" width="92" height="3"/>
+              <text class="small" x="306" y="190">▶ Step 2 of 5</text>
+              <text class="step-a" x="60" y="242">Capture</text><text x="116" y="242">›</text><text class="step-b" x="128" y="242">Stitch</text><text x="176" y="242">›</text><text class="step-c" x="188" y="242">Replay in AR</text>
             </svg>
           </figure>
           <div class="act-info">
@@ -764,19 +775,12 @@
         <a class="btn btn-dark" href="https://scholar.google.com/citations?user=85RKyZMAAAAJ" target="_blank" rel="noopener noreferrer">All on Scholar <span class="arr" aria-hidden="true">↗</span></a>
       </header>
 
-      <div class="cells metrics">
-        <div class="metric hot" data-reveal style="--i:0"><b>770+</b><span>Citations</span></div>
-        <div class="metric" data-reveal style="--i:1"><b>13</b><span>h-index</span></div>
-        <div class="metric" data-reveal style="--i:2"><b>35+</b><span>Papers</span></div>
-        <div class="metric" data-reveal style="--i:3"><b>2</b><span>Paper awards</span></div>
-      </div>
-
       <div class="cells paper-grid">
         <div class="cluster" style="--c:var(--cyan)">
-          <div class="cluster-head"><span class="cluster-code"><i></i>Collaboration</span><span>2019 → 2022</span></div>
+          <div class="cluster-head"><span class="cluster-code"><i></i>Teleoperation</span><span>2019 → 2022</span></div>
           <h3>Remote collaboration and telepresence</h3>
           <ul class="papers">
-            <li class="paper"><div class="paper-meta"><span class="paper-venue">CHI 2020</span><span class="badge badge-line">Co-author</span><span>280+ citations</span></div><a class="paper-title" href="https://dl.acm.org/doi/10.1145/3313831.3376550" target="_blank" rel="noopener noreferrer">A User Study on Mixed Reality Remote Collaboration with Eye Gaze and Hand Gesture Sharing</a></li>
+            <li class="paper"><div class="paper-meta"><span class="paper-venue">CHI 2020</span><span class="badge badge-line">Co-author</span></div><a class="paper-title" href="https://dl.acm.org/doi/10.1145/3313831.3376550" target="_blank" rel="noopener noreferrer">A User Study on Mixed Reality Remote Collaboration with Eye Gaze and Hand Gesture Sharing</a></li>
             <li class="paper"><div class="paper-meta"><span class="paper-venue">ISMAR 2019</span><span class="badge badge-lead">First author</span></div><a class="paper-title" href="https://doi.org/10.1109/ISMAR-Adjunct.2019.000-3" target="_blank" rel="noopener noreferrer">Wearable RemoteFusion: A Mixed Reality Remote Collaboration System with Local Eye Gaze and Remote Hand Gesture Sharing</a></li>
             <li class="paper"><div class="paper-meta"><span class="paper-venue">JMUI 2020</span><span class="badge badge-line">Co-author</span></div><a class="paper-title" href="https://link.springer.com/article/10.1007/s12193-020-00331-1" target="_blank" rel="noopener noreferrer">The Effects of Spatial Auditory and Visual Cues on Mixed Reality Remote Collaboration</a></li>
             <li class="paper"><div class="paper-meta"><span class="paper-venue">Frontiers in VR 2021</span><span class="badge badge-lead">First author</span></div><a class="paper-title" href="https://www.frontiersin.org/articles/10.3389/frvir.2021.698523/full" target="_blank" rel="noopener noreferrer">Spatial Perception Enhancement in Assembly Training Using Augmented Volumetric Playback</a></li>
@@ -845,7 +849,7 @@
   <footer class="footer">
     <div class="wrap footer-grid">
       <div>
-        <h2>Let's build together. <span>Research, roles, products.</span></h2>
+        <h2>Let's build together.</h2>
         <div class="footer-cta">
           <a class="btn btn-light" href="mailto:prasanth@flowsxr.com">prasanth@flowsxr.com <span class="chev" aria-hidden="true">›</span></a>
           <a class="btn btn-dark" href="https://www.linkedin.com/in/prasanth-sasikumar/" target="_blank" rel="noopener noreferrer">LinkedIn</a>

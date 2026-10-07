@@ -52,7 +52,7 @@ a:hover .arr{transform:translate(2px,-2px)}
 .nav-tabs{display:flex;align-self:stretch;margin-left:20px}
 .nav-tabs a{position:relative;display:flex;align-items:center;gap:18px;padding:0 18px;min-width:132px;border-left:1px solid var(--line);font-size:13.5px;color:var(--fg-2);transition:color .2s,background .2s}
 .nav-tabs a:last-child{border-right:1px solid var(--line)}
-.nav-tabs a span{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg-4)}
+.nav-tabs a span{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg-3)}
 .nav-tabs a:hover{color:#fff;background:var(--bg-2)}
 .nav-tabs a.is-active{color:#fff}
 .nav-tabs a.is-active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--pulse)}
@@ -70,7 +70,7 @@ a:hover .arr{transform:translate(2px,-2px)}
 .mobile-menu{display:none;border-top:1px solid var(--line);background:#000;padding:8px var(--pad) 18px}
 .nav.is-open .mobile-menu{display:block}
 .mobile-menu>a{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);font-size:18px}
-.mobile-menu>a span{font-family:var(--mono);font-size:12px;color:var(--fg-4)}
+.mobile-menu>a span{font-family:var(--mono);font-size:12px;color:var(--fg-3)}
 .menu-links{display:flex;flex-wrap:wrap;gap:10px 22px;padding-top:16px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--fg-2)}
 
 /* Hero: a dot field that follows your gaze and beats with a pulse */

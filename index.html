@@ -13,7 +13,8 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap"></noscript>
   <link rel="stylesheet" href="assets/style.css">
   <script src="assets/config.js" defer></script>
   <script src="assets/site.js" defer></script>
@@ -24,9 +25,9 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <div class="announce">
+  <aside class="announce" aria-label="Announcement">
     <a href="https://doi.org/10.1145/3772318.3791875" target="_blank" rel="noopener noreferrer"><span class="announce-tag">Award</span><span class="announce-text">Zenflow received an Honorable Mention at CHI 2026</span><span class="chev" aria-hidden="true">›</span></a>
-  </div>
+  </aside>
 
   <header class="nav" data-nav>
     <div class="wrap nav-inner">

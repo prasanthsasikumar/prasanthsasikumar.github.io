@@ -25,8 +25,9 @@ window.SITE = {
       akl: { name: 'Auckland', note: 'PhD', lat: -36.85, lon: 174.76, side: -1, dy: -14 },
       sg: { name: 'Singapore', note: 'now', lat: 1.35, lon: 103.82, side: 1, dy: 16, home: true },
       cmb: { name: 'Colombo', note: 'team', lat: 6.93, lon: 79.85, side: -1, dy: 16 },
+      nyc: { name: 'New York', note: 'team', lat: 40.71, lon: -74.01, side: -1, dy: -14 },
     },
-    routes: [['ker', 'chc'], ['chc', 'wlg'], ['wlg', 'akl'], ['akl', 'sg'], ['sg', 'cmb', true]],
+    routes: [['ker', 'chc'], ['chc', 'wlg'], ['wlg', 'akl'], ['akl', 'sg'], ['sg', 'cmb', true], ['sg', 'nyc', true]],
     trips: [
       { name: 'Brisbane', lat: -27.47, lon: 153.03, from: 'akl' },
       { name: 'Fiji', lat: -17.76, lon: 177.44, from: 'akl' },
@@ -38,7 +39,6 @@ window.SITE = {
       { name: 'Nepal', lat: 27.72, lon: 85.32, from: 'sg', dy: -16 },
       { name: 'Bhutan', lat: 27.47, lon: 89.64, from: 'sg', dy: -16 },
       { name: 'Tokyo', lat: 35.68, lon: 139.69, from: 'sg' },
-      { name: 'New York', lat: 40.71, lon: -74.01, from: 'sg', side: -1 },
       { name: 'Seattle', note: 'Meta', lat: 47.61, lon: -122.33, from: 'sg', side: -1 },
       { name: 'Seoul', lat: 37.57, lon: 126.98, from: 'sg' },
       { name: 'Luxembourg', lat: 49.61, lon: 6.13, from: 'sg', dy: -16 },

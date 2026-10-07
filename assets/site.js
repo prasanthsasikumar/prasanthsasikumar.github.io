@@ -161,7 +161,7 @@
     const LAT_TOP = 84, RES = 0.5;
     // Everything personal lives in assets/config.js (window.SITE.map).
     const MAP = (window.SITE && window.SITE.map) || {};
-    const AREA = MAP.area || { lon0: -14, lon1: 292, lat0: 62, lat1: -48 };
+    let AREA = MAP.area || { lon0: -14, lon1: 292, lat0: 62, lat1: -48 };
     const PULSE = '255,122,69';
     const PLACES = MAP.places || {};
     const ROUTES = MAP.routes || [];
@@ -177,6 +177,7 @@
     function layout() {
       const hb = hero.getBoundingClientRect(), fb = focus.getBoundingClientRect();
       width = hb.width; height = hb.height;
+      AREA = (width < 980 && MAP.areaMobile) || MAP.area || AREA;
       ratio = Math.min(window.devicePixelRatio || 1, 2);
       for (const c of [base, fx]) { c.width = Math.round(width * ratio); c.height = Math.round(height * ratio); }
       const spanLon = AREA.lon1 - AREA.lon0, spanLat = AREA.lat0 - AREA.lat1;
@@ -191,7 +192,8 @@
       dot = gap < 6 ? 1.6 : 2;
       buildDots(); drawBase();
       routes = ROUTES.map(([a, b, remote]) => ({ remote: !!remote, points: arc(PLACES[a], PLACES[b]) }));
-      trips = TRIPS.map(trip => ({ ...trip, xy: project(trip.lon, trip.lat), points: arc(PLACES[trip.from], trip) }));
+      const inside = ([x, y]) => x >= region.x0 - 2 && x <= region.x1 + 2 && y >= region.y0 - 2 && y <= region.y1 + 2;
+      trips = TRIPS.map(trip => ({ ...trip, xy: project(trip.lon, trip.lat), points: arc(PLACES[trip.from], trip) })).filter(trip => inside(trip.xy));
       blips = blips.filter(b => b.you);
       draw(performance.now()); start();
     }

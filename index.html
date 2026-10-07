@@ -44,6 +44,7 @@
       <div class="nav-right">
         <a href="https://scholar.google.com/citations?user=85RKyZMAAAAJ" target="_blank" rel="noopener noreferrer">Scholar</a>
         <a href="https://github.com/prasanthsasikumar" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="assets/prasanth-sasikumar-cv.pdf" download>CV</a>
         <a class="btn btn-light" href="mailto:prasanth@flowsxr.com">Email me <span class="chev" aria-hidden="true">›</span></a>
       </div>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><span></span></button>
@@ -56,6 +57,7 @@
       <div class="menu-links">
         <a href="https://scholar.google.com/citations?user=85RKyZMAAAAJ" target="_blank" rel="noopener noreferrer">Scholar ↗</a>
         <a href="mailto:prasanth@flowsxr.com">Email ↗</a>
+        <a href="assets/prasanth-sasikumar-cv.pdf" download>CV ↓</a>
         <a href="https://www.linkedin.com/in/prasanth-sasikumar/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
         <a href="https://github.com/prasanthsasikumar" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         <a href="https://flowsxr.com" target="_blank" rel="noopener noreferrer">FlowsXR ↗</a>
@@ -70,15 +72,15 @@
       <div class="hero-shade" aria-hidden="true"></div>
       <div class="wrap hero-body">
         <div class="hero-copy">
-          <p class="eyebrow"><b>Prasanth Sasikumar, PhD</b> · Founder &amp; CEO, FlowsXR</p>
+          <div class="hero-id"><img class="avatar" src="assets/portrait.jpg" alt="Prasanth Sasikumar" width="56" height="56" decoding="async"><p class="eyebrow"><b>Prasanth Sasikumar, PhD</b> · Founder &amp; CEO, FlowsXR</p></div>
           <h1 id="hero-title"><span class="wash">Wearables that<br>understand<br>people.</span></h1>
           <p class="hero-lede">Since 2017 I have built XR and wearable systems that sense <strong>gaze, gesture, movement and physiology</strong>, tested them in lab and field studies, and published the results. Today I am turning that research into <strong>AI products for smart glasses</strong> at FlowsXR.</p>
           <div class="hero-cta">
             <a class="btn btn-light" href="#story">See the work <span class="chev" aria-hidden="true">›</span></a>
-            <a class="btn btn-dark" href="#building">Products</a>
-            <a class="btn btn-dark" href="#research">Papers</a>
             <a class="btn btn-dark" href="mailto:prasanth@flowsxr.com">Email</a>
+            <a class="btn btn-dark" href="assets/prasanth-sasikumar-cv.pdf" download>Download CV</a>
           </div>
+          <ul class="hero-proof" aria-label="Recognition"><li><b>Best Paper</b> IEEE VR 2024</li><li><b>Honorable Mention</b> CHI 2026</li><li><b>PhD</b> University of Auckland</li></ul>
         </div>
         <div class="map-focus" aria-hidden="true"></div>
       </div>
@@ -128,10 +130,10 @@
         <button class="btn btn-dark story-flip" type="button" aria-pressed="false" aria-controls="acts"><svg class="flip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2v11.5M1.5 10.5l3 3 3-3M11.5 14V2.5M8.5 5.5l3-3 3 3" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span class="flip-label">Rewind from now</span></button>
       </header>
 
-      <div class="cells acts" id="acts">
+      <div class="cells acts is-collapsed" id="acts">
 
         <!-- Haptics: 360 cinema -->
-        <article class="act" id="haptics" style="--act:var(--amber)" aria-labelledby="haptics-title">
+        <article class="act is-extra" id="haptics" style="--act:var(--amber)" aria-labelledby="haptics-title">
           <header class="act-head"><h3 id="haptics-title">Haptics</h3><span class="act-when">2017 · HIT Lab NZ, Christchurch</span></header>
           <figure class="act-fig">
             <svg class="fig" viewBox="0 0 420 250" aria-hidden="true" focusable="false">
@@ -220,7 +222,7 @@
         </article>
 
         <!-- Brain synchrony -->
-        <article class="act" id="synchrony" style="--act:var(--violet)" aria-labelledby="synchrony-title">
+        <article class="act is-extra" id="synchrony" style="--act:var(--violet)" aria-labelledby="synchrony-title">
           <header class="act-head"><h3 id="synchrony-title">Brain synchrony</h3><span class="act-when">2019 · Auckland</span></header>
           <figure class="act-fig">
             <svg class="fig" viewBox="0 0 420 250" aria-hidden="true" focusable="false">
@@ -308,7 +310,7 @@
         </article>
 
         <!-- Physiological sensing -->
-        <article class="act" id="physio" style="--act:var(--coral)" aria-labelledby="physio-title">
+        <article class="act is-extra" id="physio" style="--act:var(--coral)" aria-labelledby="physio-title">
           <header class="act-head"><h3 id="physio-title">Physiological sensing</h3><span class="act-when">2022 · PhD, Auckland</span></header>
           <figure class="act-fig">
             <svg class="fig" viewBox="0 0 420 250" aria-hidden="true" focusable="false">
@@ -388,7 +390,7 @@
         </article>
 
         <!-- AR training -->
-        <article class="act" id="training" style="--act:var(--cyan)" aria-labelledby="training-title">
+        <article class="act is-extra" id="training" style="--act:var(--cyan)" aria-labelledby="training-title">
           <header class="act-head"><h3 id="training-title">AR training</h3><span class="act-when">2024 · NUS + Massey</span></header>
           <figure class="act-fig">
             <svg class="fig" viewBox="0 0 420 250" aria-hidden="true" focusable="false">
@@ -448,7 +450,7 @@
         </article>
 
         <!-- EmoDrink -->
-        <article class="act" id="emodrink" style="--act:var(--pink)" aria-labelledby="emodrink-title">
+        <article class="act is-extra" id="emodrink" style="--act:var(--pink)" aria-labelledby="emodrink-title">
           <header class="act-head"><h3 id="emodrink-title">Body-aware MR</h3><span class="act-when">2026 · NUS with Asahi</span></header>
           <figure class="act-fig">
             <svg class="fig" viewBox="0 0 420 250" aria-hidden="true" focusable="false">
@@ -485,7 +487,7 @@
         </article>
 
         <!-- PhantomFolds -->
-        <article class="act" id="phantom" style="--act:var(--lime)" aria-labelledby="phantom-title">
+        <article class="act is-extra" id="phantom" style="--act:var(--lime)" aria-labelledby="phantom-title">
           <header class="act-head"><h3 id="phantom-title">Fingertip haptics</h3><span class="act-when">2026 · NUS</span></header>
           <figure class="act-fig">
             <svg class="fig" viewBox="0 0 420 250" aria-hidden="true" focusable="false">
@@ -573,6 +575,7 @@
           </div>
         </article>
       </div>
+      <div class="acts-more"><button class="btn btn-dark more-btn" type="button" aria-controls="acts" aria-expanded="false">Show all 12 chapters <span aria-hidden="true">+</span></button></div>
     </section>
 
     <!-- 02 BUILDING -->
@@ -850,9 +853,10 @@
   <footer class="footer">
     <div class="wrap footer-grid">
       <div>
-        <h2>Let's build together.</h2>
+        <div class="footer-id"><img class="avatar avatar-lg" src="assets/portrait.jpg" alt="" width="88" height="88" loading="lazy" decoding="async"><h2>Let's build together.</h2></div>
         <div class="footer-cta">
           <a class="btn btn-light" href="mailto:prasanth@flowsxr.com">prasanth@flowsxr.com <span class="chev" aria-hidden="true">›</span></a>
+          <a class="btn btn-dark" href="assets/prasanth-sasikumar-cv.pdf" download>Download CV</a>
           <a class="btn btn-dark" href="https://www.linkedin.com/in/prasanth-sasikumar/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </div>
       </div>

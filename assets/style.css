@@ -83,6 +83,18 @@ a:hover .arr{transform:translate(2px,-2px)}
 .hero-copy{max-width:620px;padding:72px 0 40px;pointer-events:auto}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-2)}
 .eyebrow b{font-weight:500;color:#fff}
+.hero-id{display:flex;align-items:center;gap:14px}
+.avatar{flex:none;width:56px;height:56px;object-fit:cover;border:1px solid var(--line-3);filter:grayscale(.35) contrast(1.05)}
+.avatar-lg{width:88px;height:88px}
+.hero-proof{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-3)}
+.hero-proof li{display:flex;align-items:center;gap:8px}
+.hero-proof li::before{content:'';width:5px;height:5px;background:var(--pulse)}
+.hero-proof b{font-weight:500;color:var(--fg-1)}
+.footer-id{display:flex;align-items:center;gap:22px}
+.js .acts.is-collapsed>.is-extra{display:none}
+.acts-more{display:none;justify-content:center;margin-top:18px}
+.js .acts-more{display:flex}
+.more-btn span{font-size:14px;line-height:1}
 .hero h1{margin-top:22px;font-size:clamp(46px,6.2vw,86px);line-height:.98;letter-spacing:-.055em;font-weight:440}
 .wash{background:linear-gradient(100deg,#fff 0%,#fff 40%,var(--pulse-2) 50%,#fff 60%,#fff 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wash 9s var(--ease) infinite}
 @keyframes wash{0%,18%,100%{background-position:125% 0}54%,72%{background-position:-45% 0}}

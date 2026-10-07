@@ -100,6 +100,23 @@
   observe(figures, entry => { entry.target.classList.toggle('is-playing', entry.isIntersecting); syncFigure(entry.target); }, { rootMargin: '60px' });
   motionListeners.push(() => figures.forEach(syncFigure));
 
+  /* Story: six key chapters first, the rest behind a button (and opened by any link into them). */
+  const actsBox = document.querySelector('.acts');
+  const more = document.querySelector('.more-btn');
+  if (actsBox && more) {
+    const total = actsBox.children.length;
+    const setOpen = open => {
+      actsBox.classList.toggle('is-collapsed', !open);
+      more.setAttribute('aria-expanded', String(open));
+      more.firstChild.textContent = open ? 'Show fewer chapters ' : `Show all ${total} chapters `;
+      more.lastElementChild.textContent = open ? '−' : '+';
+    };
+    more.addEventListener('click', () => setOpen(actsBox.classList.contains('is-collapsed')));
+    const openFor = id => { const el = id && document.getElementById(id); if (el?.classList.contains('is-extra')) setOpen(true); };
+    document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', () => openFor(link.getAttribute('href').slice(1))));
+    openFor(location.hash.slice(1));
+  }
+
   /* Story direction: forward from the start, or rewind from now. */
   const acts = document.querySelector('.acts');
   const flip = document.querySelector('.story-flip');

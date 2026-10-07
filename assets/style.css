@@ -83,14 +83,17 @@ a:hover .arr{transform:translate(2px,-2px)}
 .hero-copy{max-width:620px;padding:72px 0 40px;pointer-events:auto}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-2)}
 .eyebrow b{font-weight:500;color:#fff}
-.hero-id{display:flex;align-items:center;gap:14px}
-.avatar{flex:none;width:56px;height:56px;object-fit:cover;border:1px solid var(--line-3);filter:grayscale(.35) contrast(1.05)}
-.avatar-lg{width:88px;height:88px}
 .hero-proof{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-3)}
 .hero-proof li{display:flex;align-items:center;gap:8px}
 .hero-proof li::before{content:'';width:5px;height:5px;background:var(--pulse)}
 .hero-proof b{font-weight:500;color:var(--fg-1)}
-.footer-id{display:flex;align-items:center;gap:22px}
+.footer-id{display:flex;align-items:center;gap:clamp(18px,3vw,40px)}
+/* Portrait: greyscale with a warm tint and a faint dot screen; edges dissolve into the footer. */
+.portrait{position:relative;flex:none;width:clamp(160px,18vw,240px);aspect-ratio:1;margin:-20px 0 -20px -20px;overflow:hidden;
+  -webkit-mask-image:radial-gradient(closest-side,#000 34%,rgba(0,0,0,.5) 64%,transparent 94%);mask-image:radial-gradient(closest-side,#000 34%,rgba(0,0,0,.5) 64%,transparent 94%)}
+.portrait img{width:100%;height:100%;object-fit:cover;object-position:38% 42%;transform:scale(1.35);transform-origin:38% 42%;filter:grayscale(1) contrast(1.08) brightness(.9)}
+.portrait::before{content:'';position:absolute;inset:0;background:var(--pulse);mix-blend-mode:soft-light;opacity:.45}
+.portrait::after{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(7,7,7,.32) .7px,transparent 1px) 0 0/3px 3px}
 .js .acts.is-collapsed>.is-extra{display:none}
 .acts-more{display:none;justify-content:center;margin-top:18px}
 .js .acts-more{display:flex}
@@ -399,6 +402,8 @@ html[data-motion=off] [data-reveal]{opacity:1;transform:none}
   .act-info{padding:18px 18px 22px}
   .metric{padding:16px}
   .footer-links{grid-template-columns:1fr}
+  .footer-id{flex-direction:column;align-items:flex-start}
+  .portrait{margin:-10px 0 -10px -16px;width:170px}
   .footer-base{flex-direction:column;align-items:flex-start}
 }
 @media (max-width:420px){

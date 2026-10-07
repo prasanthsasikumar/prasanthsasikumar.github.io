@@ -308,20 +308,25 @@
         ctx.strokeStyle = 'rgba(255,255,255,.62)';
         ctx.strokeRect(trip.xy[0] - 2.5, trip.xy[1] - 2.5, 5, 5);
       }
-      const replayAt = t - 5200, SLOT = 2600;
+      // Several trips fly at once, each leaving from where home was at the time.
+      const replayAt = t - 4200, SLOT = 1300, SPAN = 4;
       if (!still && trips.length && replayAt > 0) {
-        const trip = trips[Math.floor(replayAt / SLOT) % trips.length], ph = (replayAt % SLOT) / SLOT;
-        const env = Math.min(1, ph / 0.08, (1 - ph) / 0.18);
-        const drawn = Math.min(1, ph / 0.42), last = Math.floor((trip.points.length - 1) * drawn);
-        ctx.fillStyle = `rgba(255,255,255,${(0.55 * env).toFixed(3)})`;
-        for (let j = 0; j <= last; j += 2) sq(trip.points[j][0], trip.points[j][1], 1.4);
-        if (drawn < 1) { const [px, py] = along(trip.points, drawn); ctx.fillStyle = '#fff'; sq(px, py, 3.6); }
-        else {
-          const g = Math.min(1, (ph - 0.42) / 0.3);
-          ctx.strokeStyle = `rgba(255,255,255,${(0.7 * (1 - g)).toFixed(3)})`;
-          ctx.beginPath(); ctx.arc(trip.xy[0], trip.xy[1], 4 + g * 14, 0, Math.PI * 2); ctx.stroke();
-          ctx.fillStyle = '#fff'; sq(trip.xy[0], trip.xy[1], 5);
-          label(trip.xy[0], trip.xy[1], trip.name, trip.note, trip.side || 1, trip.dy || -14, env);
+        const head = Math.floor(replayAt / SLOT);
+        for (let m = 0; m < SPAN; m++) {
+          const idx = head - m;
+          if (idx < 0) continue;
+          const trip = trips[idx % trips.length], ph = (replayAt - idx * SLOT) / (SLOT * SPAN);
+          const env = Math.min(1, ph / 0.06, (1 - ph) / 0.3);
+          const drawn = Math.min(1, ph / 0.5), last = Math.floor((trip.points.length - 1) * drawn);
+          ctx.fillStyle = `rgba(255,255,255,${(0.42 * env).toFixed(3)})`;
+          for (let j = 0; j <= last; j += 2) sq(trip.points[j][0], trip.points[j][1], 1.3);
+          if (drawn < 1) { const [px, py] = along(trip.points, drawn); ctx.fillStyle = `rgba(255,255,255,${env.toFixed(3)})`; sq(px, py, 3.2); }
+          else {
+            const g = Math.min(1, (ph - 0.5) / 0.3);
+            ctx.strokeStyle = `rgba(255,255,255,${(0.6 * (1 - g)).toFixed(3)})`;
+            ctx.beginPath(); ctx.arc(trip.xy[0], trip.xy[1], 4 + g * 12, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = `rgba(255,255,255,${(0.9 * env).toFixed(3)})`; sq(trip.xy[0], trip.xy[1], 4.5);
+          }
         }
       }
       // The gaze reveals what is under it.
